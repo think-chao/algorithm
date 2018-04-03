@@ -2,7 +2,7 @@
 #include "BinTree.c"
 
 void oper(ChainBinTree *p){
-	printf("%c" ,p->data);
+	printf("%c",p->data);
 	return;
 }
 
@@ -15,6 +15,7 @@ ChainBinTree *InitRoot()
 		scanf("%s",&node->data);
 		node->left=NULL;
 		node->right=NULL;
+		printf("添加数据成功\n"); 
 	}
 	return node;
 }

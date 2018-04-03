@@ -3,6 +3,7 @@
 #define QUEUE_MAXSIZE 50
 
 typedef char DATA;   //定义元素数据类型
+
 typedef struct ChainTree{
 	DATA data;
 	struct ChainTree *left;
@@ -37,7 +38,7 @@ int BinTreeAdd(ChainBinTree *bt,ChainBinTree *node,int n){
 				bt->left=node;
 			}
 		case 2:
-			if( bt->right) //右子树不为空 
+			if(bt->right) //右子树不为空 
             {
                 printf("右子树结点不为空!\n"); 
                 return 0;
