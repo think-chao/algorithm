@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include "CreateData.c"
 #define ARRAYLEN 6
+
+//对冒泡排序的改进
+//如果以及排好了则不扫描了 
 void BubbleSort(int a[],int n)
 {
     int i,j,t;
+    int flag=0;
     for(i=0;i<n-1;i++)
     {
         for(j=n-1;j>i;j--)
@@ -13,12 +17,18 @@ void BubbleSort(int a[],int n)
                 t=a[j-1];
                 a[j-1]=a[j];
                 a[j]=t;
+                flag=1;
             }
         }
-        printf("第%2d遍:",i+1); 
-        for(j=0;j<n;j++)
-            printf("%d ",a[j]);
-        printf("\n");
+        if(flag==0){
+        	break;
+		}else{
+			printf("第%2d遍:",i+1); 
+        	for(j=0;j<n;j++)
+            	printf("%d ",a[j]);
+        	printf("\n");
+			flag=0;
+		}    
     }
 }
 void BubbleSort1(int a[],int n)
