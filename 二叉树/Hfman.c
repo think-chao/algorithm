@@ -184,6 +184,9 @@ void Encode(HuffmanCode *hc,char *alphabet,char *str,char *code)
 
 
 void Decode(HuffmanTree *ht,int m,char *code,char *alphabet,char *decode)
+
+//ht指向一颗哈夫曼树,m=n,code 存放了哈夫曼编码, alphabet 是字母表 , decode 用来存放解码的结果 
+
 //将一个Huffman编码组成的字符串转换为明文字符串 
 //ht为Huffman二叉树,m为字符数量,alphabet为对应的字母表,str为需要转换的字符串,decode返回转换的结果 
 {
