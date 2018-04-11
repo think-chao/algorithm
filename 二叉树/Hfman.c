@@ -9,113 +9,120 @@
 //思路：
 // 在内存中分配一片连续的区域，用来保存哈夫曼二叉树，可以将这部分内存区域作为一个一维数组
 // 然后通过数组的下表序号访问不同的二叉树节点
- 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
-
-typedef struct{
-	int weight;
-	int parent;			//父节点序号 
-	int left;			//左子树序号	 
-	int right;			//右子树序号 
+typedef struct
+{
+    int weight; //权值 
+    int parent; //父结点序号 
+    int left; //左子树序号
+    int right; //右子树序号 
 }HuffmanTree;
-
-typedef char *HuffmanCode;		//哈夫曼编码指针，用HufmanCode来代替char字符指针
-
-//从n个节点中选取权值最小的两个 ,而且要求父节点为空 
-void SelectNode(HuffmanTree *ht,int n,int *bt1,int *bt2){
-	int i; 
-	HuffmanTree *ht1,*ht2,*t;
-	ht1=NULL;
-	ht2=NULL;
-	for(i=1;i<=n;i++){
-		if(!ht[i].parent){
-			if(ht1==NULL){
-				ht1=ht+i;
-				continue;
-			}
-			if(ht2==NULL){
-				ht2=ht+i;
-				if(ht1->weight>ht2->weight){			//时钟保证ht1的 权值最小 
-					t=ht2;
-					ht2=ht1;
-					ht1=t;							//这个时候就得让ht1指向ht2了 
-				}
-			}
-			
-			if(ht1&&ht2){
-				if(ht[i].weight<=ht1->weight){		//这个时候说明ht1指向的不是最小权值的节点了 
-													//这个时候和ht1指向的就是权值第二小的节点了
-					ht2=ht1;
-					ht1=ht+i; 	
-				}else if(ht[i].weight<ht2->weight){
-					ht2=ht+i;
-				}
-			}
-		}
-	}
-	
-	
-	//获取最小节点的序号以及第二小节点的序号 
-	if(ht1>ht2){
-		*bt2=ht1-ht;
-		*bt1=ht2-ht;
-	}else{
-		*bt1=ht1-ht;
-		*bt2=ht2-ht;
-	}
-	
-	
+typedef char *HuffmanCode;  //Huffman编码 字符型指针 
+void SelectNode(HuffmanTree *ht,int n,int *bt1,int *bt2)
+//从1~x个结点选择parent结点为0,权重最小的两个结点 
+{
+     int i;
+     HuffmanTree *ht1,*ht2,*t;
+     ht1=ht2=NULL; //初始化两个结点为空 
+     for(i=1;i<=n;++i) //循环处理1~n个结点（包括叶结点和非叶结点） 
+     {
+         if(!ht[i].parent) //父结点为空(结点的parent=0) 
+         {	
+             if(ht1==NULL) //结点指针1为空 
+             {
+                 ht1=ht+i; //指向第i个结点 
+                 continue; //继续循环 
+             }
+             if(ht2==NULL) //结点指针2为空 
+             {
+                 ht2=ht+i; //指向第i个结点 
+                 if(ht1->weight>ht2->weight) //比较两个结点的权重，使ht1指向的结点权重小 
+                 {
+                     t=ht2;
+                     ht2=ht1;
+                     ht1=t;
+                 }
+                 continue; //继续循环 
+             }
+             if(ht1 && ht2) //若ht1、ht2两个指针都有效 
+             {
+                 if(ht[i].weight<=ht1->weight) //第i个结点权重小于ht1指向的结点 
+                 {
+                     ht2=ht1; //ht2保存ht1，因为这时ht1指向的结点成为第2小的 
+                     ht1=ht+i; //ht1指向第i个结点 
+                 }else if(ht[i].weight<ht2->weight){ //若第i个结点权重小于ht2指向的结点 
+                     ht2=ht+i; //ht2指向第i个结点 
+                 }
+             }
+         }
+     }
+     if(ht1>ht2){ //增加比较，使二叉树左侧为叶结点 
+         *bt2=ht1-ht;
+         *bt1=ht2-ht;
+     }else{
+         *bt1=ht1-ht;
+         *bt2=ht2-ht;
+     }
 }
+
 
 //ht是一个指向哈夫曼树的指针，n代表创建的哈夫曼树的叶节点个数，w是个指针，指向了一个存放所有节点权重的数组 
 //所以叶节点书目为n，总结点个数为2n-1
- 
-void CreatTree(HuffmanTree *ht,int n,int *w){
-	int i,m=2*n-1;			//根据哈夫曼树的叶子节点确定总结点的数目 
-	int bt1,bt2;			//二叉树节点的序号 
-	if(n<1)	return ;
-	
-	for(i=1;i<=n;++i){
-		ht[i].weight=w[i-1];
-		ht[i].parent=0;
-		ht[i].left=0;
-		ht[i].right=0;
-	}
-	
-	//哈夫曼树除了叶节点其他节点的权值都是0 
-	
-	for(;i<=m;++i){
-		ht[i].weight=0;
-		ht[i].parent=0;
-		ht[i].left=0;
-		ht[i].right=0;
-	} 
-	
-	//现在ht[i]表示每一个节点了 
+void CreateTree(HuffmanTree *ht,int n,int *w)
+{
+    int i,m=2*n-1;//总的节点数
+    int bt1,bt2; //二叉树结点序与 
+    if(n<=1) return ; //只有一个结点，无法创建 
+    for(i=1;i<=n;++i) //初始化叶结点 
+    {
+        ht[i].weight=w[i-1];
+        ht[i].parent=0;
+        ht[i].left=0;
+        ht[i].right=0;
+    }
+    for(;i<=m;++i)//初始化后续结点 
+    {
+        ht[i].weight=0;
+        ht[i].parent=0;
+        ht[i].left=0;
+        ht[i].right=0;
+    }
+    
+    	//现在ht[i]表示每一个节点了 
 	
 	
 	//此时需要计算非叶节点的权重了，因为选取两个权重最小的节点之后
 	//需要根据这两个节点的权重之和组成一个二叉树，而这个二叉树的根节点也就是其中一个非叶节点 
-
-	for(i=n+1;i<=m;++i){
-		//首先找到两个权重最小的节点，因为最开始大家都是只有一个根节点的二叉树 
+    for(i=n+1;i<=m;++i) //逐个计算非叶结点，创建Huffman树 
+    {
+    	
+    	
+    	//首先找到两个权重最小的节点，因为最开始大家都是只有一个根节点的二叉树 
 		// 找两个权值最小的节点必须从有有权值的n个节点中选择 
 		//  
 		//希望通过这个函数把找到的最小值的两个节点的序号的值赋值给bt1和bt2
 		 
-		SelcetNode(ht,i-1,&bt1,&bt2);
-		ht[bt1].parent=i;
-		ht[bt2].parent=i; 
-		ht[i].left=bt1;
+        SelectNode(ht,i-1,&bt1,&bt2); //从1~i-1个结点选择parent结点为0,权重最小的两个结点 
+        ht[bt1].parent=i;
+        ht[bt2].parent=i;
+        ht[i].left=bt1;
         ht[i].right=bt2;
-	}
-} 
+        ht[i].weight=ht[bt1].weight+ht[bt2].weight;
+    }
+    
+    //分派完叶节点之后,每次通过查找到两个最小的权值的叶节点来构成这两个叶节点的根节点
+	//根节点的序号从n+1到m 
+}
 
-
+//思路:
+//希望从根节点寻找到指定叶节点的路径,从而组成哈夫曼编码
+//所以可以从叶节点出发,不断的寻找其父节点,得到其父节点 的编码,然后存放在一个数组里
+//最后将的到的数组逆序输出就是该叶节点的哈夫曼编码 
 void HuffmanCoding(HuffmanTree *ht,int n,HuffmanCode *hc)//,char *letters)
 {
+	//cd是一个字符指针,初始给cd一段连续内存的首地址 
      char *cd;
      int start,i;
      int current,parent;    
@@ -129,13 +136,21 @@ void HuffmanCoding(HuffmanTree *ht,int n,HuffmanCode *hc)//,char *letters)
          while(parent) //父结点不为空 
          {
              if(current==ht[parent].left)//若该结点是父结点的左子树  
+             
+             //逆序存储每个节点的编码就可以直接得到正确的编码 
                cd[--start]='0'; //编码为0 
              else //若结点是父结点的右子树 
                cd[--start]='1'; //编码为1 
              current=parent; //设置当前结点指向父结点 
              parent=ht[parent].parent; //获取当前结点的父结点序号    
          }
-         hc[i-1]=(char*)malloc(sizeof(char)*(n-start));//分配保存编码的内存 
+         
+         //为什么分配给保存编码的内存是n-start??
+		 //start=n-1,假设只循环一次,start=n-1-1
+		 //n-start=2 
+         hc[i-1]=(char*)malloc(sizeof(char)*(n-start));//分配保存编码的内存 为什么
+		 
+		  
          strcpy(hc[i-1],&cd[start]); //复制生成的编码           
      }
      free(cd); //释放编码占用的内存 
@@ -151,6 +166,13 @@ void Encode(HuffmanCode *hc,char *alphabet,char *str,char *code)
      while(str[i])
      {
          j=0;
+         
+         //将字母表中的字母与要测的字符串的第一个要编码的字母进行比对
+		 // 因为有排好序的字母表存在,所以说要在字母表中要查几次就说明
+		 // 需要编码的字母相对于首字母的偏移是多少,从而确定该需要编码的字母
+		 
+		 // 而且每个字母占有的编码位数是动态的,所以每次需要获取已经编码号的字母的位数
+		 // 作为下一个编码数字的偏移 
          while(alphabet[j]!=str[i])
              j++;         
          strcpy(code+len,hc[j]); //将对应字母的Huffman编码复制到code指定位置 
@@ -159,6 +181,7 @@ void Encode(HuffmanCode *hc,char *alphabet,char *str,char *code)
      }
      code[len]='\0';
 }
+
 
 void Decode(HuffmanTree *ht,int m,char *code,char *alphabet,char *decode)
 //将一个Huffman编码组成的字符串转换为明文字符串 
@@ -180,6 +203,8 @@ void Decode(HuffmanTree *ht,int m,char *code,char *alphabet,char *decode)
      }  
      decode[j]='\0'; //字符串结尾 
 }
+
+
 int main()
 {
     int i,n=4,m; 
@@ -216,4 +241,5 @@ int main()
     getch();
     return 0;
 }
+
 
